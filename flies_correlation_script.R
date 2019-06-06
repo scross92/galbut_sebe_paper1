@@ -1,4 +1,6 @@
 #Correlation analyses on 2017/2018 Drosophila
+#This data does not include individual Brazil flies
+
 
 library(ggplot2)
 library(dplyr)
@@ -128,41 +130,65 @@ virus_reads <- rowSums(fly_taxa_matrix_viruses)
 virus_reads_avg <- (sum(virus_reads))/(NROW(virus_reads))
 virus_reads_avg
 
-#bacteria vs virus reads plot
+#bacteria vs virus reads scatter plot with basic plot function
 bacteria_virus_reads <- data.frame(bacteria_reads, virus_reads)
-plot(bacteria_virus_reads$bacteria_reads, bacteria_virus_reads$virus_reads, 
-     xlab = "Bacterial Reads per Million Reads", 
-     ylab = "Viral Reads Per Million Reads", 
-     main = "Bacteria vs Virus Mapping Reads in Individual Flies",
-     yaxt = "n",
-     xaxt = "n")
+# plot(bacteria_virus_reads$bacteria_reads, bacteria_virus_reads$virus_reads, 
+#      xlab = "Bacterial Reads per Million Reads", 
+#      ylab = "Viral Reads Per Million Reads", 
+#      main = "Bacteria vs Virus Mapping Reads in Individual Flies",
+#      yaxt = "n",
+#      xaxt = "n")
+# 
+# #Fix the axis to have better labels
+# # Define the position of tick marks
+# y1 <- c(0,2e4,4e4,6e4,8e4, 1e5)
+# 
+# # Define the labels of tick marks
+# y2 <- c("0","20,000","40,000","60,000","80,000", "100,000")
+# 
+# # Add an axis to the plot--ylab 
+# axis(side = 2, 
+#      at = y1, 
+#      labels = y2,
+#      tck=-.02)
+# 
+# #Position and labels
+# x1 <- c(0, 5000, 10000, 15000, 2e4)
+# x2 <- c("0", "5,000", "10,000", "15,000", "20,000")
+# #Add an axis to plot--xlab
+# axis(side = 1, 
+#      at = x1, 
+#      labels = x2,
+#      tck=-.02)
+# 
+# #Add fitted line (maybe not the best?)
+# reads_lm <- lm(bacteria_virus_reads$virus_reads~bacteria_virus_reads$bacteria_reads)
+# abline(reads_lm)
 
-#Fix the axis to have better labels
-# Define the position of tick marks
-y1 <- c(0,2e4,4e4,6e4,8e4, 1e5)
 
-# Define the labels of tick marks
-y2 <- c("0","20,000","40,000","60,000","80,000", "100,000")
+#making a scatterplot with ggplot2
+#ggplot2 has more versatility
+bacteria_virus_reads
+library(grid)
 
-# Add an axis to the plot--ylab 
-axis(side = 2, 
-     at = y1, 
-     labels = y2,
-     tck=-.02)
-
-#Position and labels
-x1 <- c(0, 5000, 10000, 15000, 2e4)
-x2 <- c("0", "5,000", "10,000", "15,000", "20,000")
-#Add an axis to plot--xlab
-axis(side = 1, 
-     at = x1, 
-     labels = x2,
-     tck=-.02)
-
-#Add fitted line (maybe not the best?)
-reads_lm <- lm(bacteria_virus_reads$virus_reads~bacteria_virus_reads$bacteria_reads)
-abline(reads_lm)
-
+p <- ggplot(bacteria_virus_reads, aes(x = bacteria_reads, y = virus_reads)) + geom_point()
+p + geom_abline(intercept = 0) + #add y=x line
+  theme_bw() + #remove background color
+  theme(panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(), 
+        panel.border = element_blank(), 
+        axis.line = element_line(color = "black")) + #remove grid lines and border lines
+  labs(x = "Bacteria Reads per Million Reads", y = "Virus Reads per Million Reads") + #axis labels
+  theme(axis.title = element_text(family = "Helvetica", size = 15)) +
+  ggtitle("Bacteria vs Virus Mapping Reads in Individual Drosophila") + #title
+  theme(plot.title = element_text(family = "Helvetica", size = 20, hjust = 0.5)) + #Center the title
+  theme(axis.text = element_text(size = 12)) + #change axis text size
+  theme(plot.margin=unit(c(0.5, 1, 0.5, 0.5),"cm")) + #add margins around plot
+  theme(
+    axis.title.x = element_text(margin = unit(c(1, 0, 0.5, 0), "cm")), # add space between x label and plot
+    axis.title.y = element_text(margin = unit(c(0, 1, 0, 0.5), "cm")), #add space between y lab and plot
+    plot.title = element_text(margin = unit(c(0.5, 0, 1.5, 0), "cm"))) #add space between title and plot
+  
 
 #Corr.test from psych library returns pearson coefficients and p-vals
 
